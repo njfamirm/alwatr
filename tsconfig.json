@@ -4,7 +4,7 @@
   "extends": "./tsconfig.base",
   "compilerOptions": {
     "composite": true,
-    "tsBuildInfoFile": ".tsbuildinfo",
+    "tsBuildInfoFile": ".tsbuildinfo"
   },
   "files": [],
   "exclude": [],
@@ -44,6 +44,7 @@
     {"path": "./ui/demo-pwa"},
 
     // labs
-    {"path": "./labs/zx-example"}
+    {"path": "./labs/zx-example"},
+    {"path": "./labs/image-optimizer"}
   ]
 }
