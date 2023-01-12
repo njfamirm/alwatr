@@ -58,14 +58,14 @@ export async function pageOptimizer(): Promise<void> {
     }).then((promptsResult) => promptsResult.confirm);
 
     if (confirm) {
-      for await (const image of images) {
+      for await (const [index, image] of images.entries()) {
         try {
-          await optimizer(image, path.resolve('pros', image), 1080, 1080);
+          await optimizer(image, path.resolve('pros', image), 1080);
 
-          console.log(chalk.green('✔'), image);
+          console.log(chalk.bold(`[ ${index + 1} | ${images.length} ]`), chalk.green('✔'), image);
         }
         catch (error) {
-          console.log(chalk.red('✗'), (error as Error).message);
+          console.log(chalk.bold(`[ ${index + 1} | ${images.length} ]`), chalk.red('✗'), (error as Error).message);
         }
       }
     }

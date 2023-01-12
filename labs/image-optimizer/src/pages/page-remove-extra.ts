@@ -56,10 +56,15 @@ export async function pageRemoveExtra(): Promise<void> {
     }).then((promptsResult) => promptsResult.confirm);
 
     if (confirm) {
-      for await (const image of images) {
-        await fs.remove(image);
+      for await (const [index, image] of images.entries()) {
+        try {
+          await fs.remove(image);
 
-        console.log(chalk.red('✗'), image);
+          console.log(chalk.bold(`[ ${index + 1} | ${images.length} ]`), chalk.green('✔'), image);
+        }
+        catch (error) {
+          console.log(chalk.bold(`[ ${index + 1}  | ${images.length} ]`), chalk.red('✗'), (error as Error).message);
+        }
       }
     }
   }
