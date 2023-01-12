@@ -2,37 +2,40 @@ import sharp from 'sharp';
 
 import 'zx/globals';
 
+export function ratio(x1: number, x2: number, y1: number): number {
+  return Math.round((x1 * y1) / x2);
+}
+
 export async function optimizer(
     origin: string,
     destination: string,
-    width: number,
-    height: number,
+    maxWidth: number,
     quality?: number,
 ): Promise<sharp.Sharp> {
-  const image = sharp(origin);
+  let image = sharp(origin);
   const imageMeta = await image.metadata();
 
-  width = Math.min(imageMeta.width ?? width, width);
-  height = Math.min(imageMeta.width ?? height, height);
+  if (imageMeta.width != null && imageMeta.height != null) {
+    const width = Math.min(imageMeta.width, maxWidth);
+    const height = ratio(imageMeta.height, imageMeta.width, width);
 
-  const imageResized = image.resize({
-    width,
-    height,
-    fit: 'cover',
-  });
-
-  let imageFormatted = imageResized;
+    image = image.resize({
+      width,
+      height,
+      fit: 'cover',
+    });
+  }
 
   if (imageMeta.format === 'png') {
-    imageFormatted = imageFormatted.png({
+    image = image.png({
       compressionLevel: 9,
       quality: quality ?? 90,
     });
   }
   else if (imageMeta.format === 'jpeg' || imageMeta.format === 'jpg') {
-    imageFormatted = imageFormatted.jpeg({
+    image = image.jpeg({
       mozjpeg: true,
-      quality: quality ?? 70,
+      quality: quality ?? 80,
     });
   }
 
@@ -42,14 +45,14 @@ export async function optimizer(
         .replaceAll('.jpeg', '-i313o.jpeg')
         .replaceAll('.png', '-i313o.png');
 
-    await imageFormatted.toFile(destination);
+    await image.toFile(destination);
 
     await fs.remove(origin);
     await fs.move(destination, origin);
   }
   else {
-    await imageFormatted.toFile(destination);
+    await image.toFile(destination);
   }
 
-  return imageFormatted;
+  return image;
 }
