@@ -17,8 +17,12 @@ export async function pageHome(): Promise<number> {
         value: 2,
       },
       {
-        title: '[3] Exit',
+        title: '[3] Generate Thumbnails',
         value: 3,
+      },
+      {
+        title: '[3] Exit',
+        value: 4,
       },
     ],
   }).then((promptsResult) => promptsResult.choice);
