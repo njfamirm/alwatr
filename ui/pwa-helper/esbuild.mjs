@@ -11,7 +11,7 @@ import {generateSW} from 'workbox-build';
 import packageJson from './package.json' assert {type: 'json'};
 
 const logger = createLogger('alwatr-pwa-build');
-const banner = '/* ..:: Alwatr UI Demo ::.. */\n';
+const banner = '/* ..:: Alwatr PWA ::.. */\n';
 
 const srcDir = 'src';
 const resDir = 'res';
@@ -35,7 +35,7 @@ if (cleanMode) {
   await fs.rm(outDir, {recursive: true, force: true});
 }
 
-const copyPromise = fs.cp(resDir, outDir, {recursive: true, force: true, verbatimSymlinks: true});
+const copyPromise = fs.cp(resDir, outDir, {recursive: true, force: true, dereference: true});
 
 const esbuildContext = await esbuild.context({
   entryPoints: [`${srcDir}/${srcFilename}.ts`],
@@ -52,12 +52,12 @@ const esbuildContext = await esbuild.context({
   sourcesContent: debugMode,
   bundle: true,
   splitting: true,
-  charset: 'ascii',
+  charset: 'utf8',
   legalComments: 'none',
   metafile: true,
 
   define: {
-    _ALWATR_VERSION_: `'${packageJson.version}'`,
+    _ALWATR_VERSION_: `'${packageJson.pwaVersion}'`,
   },
   // drop: ['debugger'],
 

@@ -1,5 +1,4 @@
 import {css, customElement, html, property, nothing, ifDefined, PropertyValues, when} from '@alwatr/element';
-
 import '@alwatr/icon';
 
 import {AlwatrSurface} from './surface.js';
@@ -24,6 +23,7 @@ export interface IconBoxContent extends StringifyableRecord {
   stated?: boolean;
   preLine?: boolean;
   elevated?: number;
+  tinted?: number;
 }
 
 /**
@@ -74,6 +74,10 @@ export class AlwatrIconBox extends AlwatrSurface {
         font-size: var(--sys-typescale-headline-small-font-size);
         letter-spacing: var(--sys-typescale-headline-small-letter-spacing);
         line-height: var(--sys-typescale-headline-small-line-height);
+
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .headline alwatr-icon {
@@ -110,6 +114,12 @@ export class AlwatrIconBox extends AlwatrSurface {
       }
       else {
         this.removeAttribute('elevated');
+      }
+      if (this.content.tinted != null && this.content.tinted > 0) {
+        this.setAttribute('tinted', this.content.tinted + '');
+      }
+      else {
+        this.removeAttribute('tinted');
       }
     }
   }

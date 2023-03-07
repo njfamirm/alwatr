@@ -1,7 +1,7 @@
 import {contextConsumer} from './context-consumer.js';
 import {requestContext} from './core.js';
 
-import type{Stringifyable, OmitFirstParam} from '@alwatr/type';
+import type {Stringifyable, OmitFirstParam} from '@alwatr/type';
 
 /**
  * Requestable context consumer interface.
@@ -43,7 +43,7 @@ export const requestableContextConsumer = {
      * const newProductList = await productListConsumer.untilChange();
      * ```
      */
-    request: requestContext as
+    request: requestContext.bind(null, contextId) as
       OmitFirstParam<typeof requestContext<TRquest>>,
   } as const),
 } as const;

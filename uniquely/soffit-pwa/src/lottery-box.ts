@@ -1,20 +1,22 @@
 import {
   customElement,
-  AlwatrSmartElement,
   css,
   html,
   state,
   LocalizeMixin,
   type PropertyValues,
+  SignalMixin,
+  AlwatrBaseElement,
 } from '@alwatr/element';
 import {message} from '@alwatr/i18n';
+import '@alwatr/ui-kit/card/icon-box.js';
 import {untilNextFrame, untilEvent, delay} from '@alwatr/util';
+
+import './lottery-form.js';
 
 import type {AlwatrLotteryForm} from './lottery-form.js';
 import type {AlwatrIconBox, IconBoxContent} from '@alwatr/ui-kit/card/icon-box.js';
 
-import '@alwatr/ui-kit/card/icon-box.js';
-import './lottery-form.js';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -26,7 +28,7 @@ declare global {
  * Soffit lottery box element
  */
 @customElement('alwatr-lottery-box')
-export class AlwatrLotteryBox extends LocalizeMixin(AlwatrSmartElement) {
+export class AlwatrLotteryBox extends LocalizeMixin(SignalMixin(AlwatrBaseElement)) {
   static override styles = css`
     :host {
       display: block;
@@ -62,7 +64,7 @@ export class AlwatrLotteryBox extends LocalizeMixin(AlwatrSmartElement) {
     return {
       icon: 'gift-outline',
       headline: message('lottery_form_title'),
-      elevated: 2,
+      elevated: 1,
       stated: !this.expanded,
       highlight: !this.expanded && !this.submitted,
     };

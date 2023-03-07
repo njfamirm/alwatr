@@ -1,7 +1,6 @@
-import {logger} from '../lib/config.js';
+import {config, logger} from '../lib/config.js';
 import {nanoServer} from '../lib/server.js';
 import {storageClient} from '../lib/storage.js';
-import {tokenGenerator} from '../lib/token.js';
 
 import type {Order} from '@alwatr/type/customer-order-management.js';
 
@@ -9,20 +8,10 @@ import type {Order} from '@alwatr/type/customer-order-management.js';
 nanoServer.route('PUT', '/order/', async (connection) => {
   logger.logMethod('put-order');
 
+  connection.requireToken(config.nanoServer.accessToken);
   const params = connection.requireQueryParams<{userId: string}>({userId: 'string'});
-  connection.requireToken((token: string) => {
-    return tokenGenerator.verify(params.userId, token) === 'valid';
-  });
-  const remoteAddress = connection.incomingMessage.socket.remoteAddress ?? 'unknown';
-  const clientId = connection.incomingMessage.headers['client-id'];
-
-  if (!clientId) {
-    return {
-      ok: false,
-      statusCode: 401,
-      errorCode: 'client_id_header_required',
-    };
-  }
+  const remoteAddress = connection.getRemoteAddress();
+  const clientId = connection.requireClientId();
 
   const order = await connection.requireJsonBody<Order>();
 
@@ -33,6 +22,6 @@ nanoServer.route('PUT', '/order/', async (connection) => {
 
   return {
     ok: true,
-    data: await storageClient.set<Order>(order, params.userId),
+    data: await storageClient.set<Order>(order, config.orderStoragePrefix + params.userId),
   };
 });

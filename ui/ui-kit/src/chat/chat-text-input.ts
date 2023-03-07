@@ -1,6 +1,6 @@
 import {
   type PropertyValues,
-  AlwatrDummyElement,
+  AlwatrBaseElement,
   css,
   customElement,
   html,
@@ -11,7 +11,7 @@ import {message} from '@alwatr/i18n';
 
 import '../button/icon-button.js';
 
-import type {AlwatrStandardIconButton} from '../button/icon-button.js';
+import type {AlwatrStandardIconButton, IconButtonContent} from '../button/icon-button.js';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -23,7 +23,7 @@ declare global {
  * Alwatr chat text input element.
  */
 @customElement('alwatr-chat-text-input')
-export class AlwatrChatTextInput extends LocalizeMixin(SignalMixin(AlwatrDummyElement)) {
+export class AlwatrChatTextInput extends LocalizeMixin(SignalMixin(AlwatrBaseElement)) {
   static override styles = css`
     :host {
       --_height: calc(6 * var(--sys-spacing-track));
@@ -38,8 +38,6 @@ export class AlwatrChatTextInput extends LocalizeMixin(SignalMixin(AlwatrDummyEl
     }
 
     alwatr-icon-button {
-      width: var(--_height);
-      height: var(--_height);
       --_surface-color-on: var(--sys-color-tertiary-hsl);
     }
 
@@ -67,12 +65,11 @@ export class AlwatrChatTextInput extends LocalizeMixin(SignalMixin(AlwatrDummyEl
   override render(): unknown {
     this._logger.logMethod('render');
     return html`
-      <textarea
-        rows="1"
-        placeholder=${message('chat_text_input_placeholder')}
-        @input=${this.__inputChange}
-      ></textarea>
-      <alwatr-icon-button .icon=${'send'} flip-rtl disabled></alwatr-icon-button>
+      <textarea rows="1" placeholder=${message('chat_text_input_placeholder')} @input=${this.__inputChange}></textarea>
+      <alwatr-icon-button
+        .content=${<IconButtonContent>{icon: 'send-outline', flipRtl: true, clickSignalId: 'send-message'}}
+        disabled
+      ></alwatr-icon-button>
     `;
   }
 

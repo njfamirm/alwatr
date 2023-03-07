@@ -22,6 +22,7 @@
     {"path": "./core/token"},
     {"path": "./core/validator"},
     {"path": "./core/util"},
+    {"path": "./core/fsm"},
     {"path": "./core/type"},
 
     // ui
@@ -45,6 +46,7 @@
     {"path": "./uniquely/flight-finder-api"},
     {"path": "./uniquely/soffit-pwa"},
     {"path": "./uniquely/com-api"},
+    {"path": "./uniquely/com-pwa"},
 
     // labs
     {"path": "./labs/zx-example"}

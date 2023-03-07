@@ -1,5 +1,5 @@
 import {
-  AlwatrDummyElement,
+  AlwatrBaseElement,
   css,
   customElement,
   html,
@@ -9,10 +9,10 @@ import {
   SignalMixin,
 } from '@alwatr/element';
 
-import type {ChatMessage} from '@alwatr/type';
-
 import './chat-avatar.js';
 import './chat-bubble.js';
+
+import type {ChatMessage} from '@alwatr/type';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -26,7 +26,7 @@ declare global {
  * @attr self
  */
 @customElement('alwatr-chat-message')
-export class AlwatrChatMessage extends DirectionMixin(SignalMixin(AlwatrDummyElement)) {
+export class AlwatrChatMessage extends DirectionMixin(SignalMixin(AlwatrBaseElement)) {
   static override styles = css`
     :host {
       display: flex;

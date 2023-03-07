@@ -2,10 +2,9 @@ import {customElement, html} from '@alwatr/element';
 import {message} from '@alwatr/i18n';
 
 import {AlwatrLotteryBox} from './lottery-box.js';
+import './supply-chain-form.js';
 
 import type {IconBoxContent} from '@alwatr/ui-kit/card/icon-box.js';
-
-import './supply-chain-form.js';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -22,7 +21,7 @@ export class AlwatrSupplyChainBox extends AlwatrLotteryBox {
     return {
       icon: 'gift-outline',
       headline: message('supply_chain_form_title'),
-      elevated: 2,
+      elevated: 1,
       stated: !this.expanded,
       highlight: !this.expanded && !this.submitted,
     };

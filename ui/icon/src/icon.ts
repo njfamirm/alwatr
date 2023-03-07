@@ -1,5 +1,5 @@
 import {
-  AlwatrDummyElement,
+  AlwatrBaseElement,
   unsafeSVG,
   customElement,
   property,
@@ -36,15 +36,15 @@ declare global {
  * @attr {Boolean} flip-rtl
  */
 @customElement('alwatr-icon')
-export class AlwatrIcon extends DirectionMixin(SignalMixin(AlwatrDummyElement)) {
+export class AlwatrIcon extends DirectionMixin(SignalMixin(AlwatrBaseElement)) {
   static override styles = css`
     :host {
       display: inline-block;
       width: 1em;
       height: 1em;
-      contain: strict;
-      fill: currentcolor;
-      box-sizing: content-box !important;
+      contain: size layout paint style;
+      box-sizing: content-box;
+      vertical-align: middle;
     }
 
     :host([flip-rtl][dir='rtl']) svg {
@@ -56,6 +56,7 @@ export class AlwatrIcon extends DirectionMixin(SignalMixin(AlwatrDummyElement)) 
       height: 100%;
       width: 100%;
       stroke: currentcolor;
+      fill: currentcolor;
     }
   `;
 

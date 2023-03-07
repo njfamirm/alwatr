@@ -56,14 +56,18 @@ export const routerOutlet = (routesConfig: RoutesConfig): unknown => {
   }
 
   const routeId = routesConfig.routeId(routeContext) ?? '';
-  const render = routesConfig.templates[routeId];
+  let render = routesConfig.templates[routeId];
+
+  while (typeof render === 'string') {
+    render = routesConfig.templates[render];
+  }
 
   try {
     if (typeof render === 'function') {
       return render(routeContext);
     }
     // else
-    if (routeContext.pathname === '/' && routeId === '') {
+    if (routeId === '') {
       return routesConfig.templates.home(routeContext);
     }
     // else
@@ -94,7 +98,7 @@ export const url = (route: Partial<RouteContextBase>): string => {
 
   let href = '';
 
-  if (Array.isArray(route.sectionList) && route.sectionList.length > 0) {
+  if (Array.isArray(route.sectionList)) {
     href += documentBaseUrl + route.sectionList.join('/');
   }
 
@@ -123,9 +127,19 @@ export const url = (route: Partial<RouteContextBase>): string => {
  * })
  * ```
  */
-export const redirect = (route: string | RouteContextBase | undefined, pushState: PushState = true): void => {
+export const redirect = (
+    route: string | Partial<RouteContextBase> | undefined,
+    pushState: PushState = true,
+    keepSectionSlice = 0,
+): void => {
   if (route == null) return;
   logger.logMethodArgs('redirect', route);
+  if (keepSectionSlice > 0 && typeof route === 'object' && Array.isArray(route.sectionList)) {
+    const routeContext = routeContextConsumer.getValue();
+    if (routeContext != null) {
+      route.sectionList = [...routeContext.sectionList.slice(0, keepSectionSlice), ...route.sectionList];
+    }
+  }
   const href = typeof route === 'string' ? route : url(route);
   updateBrowserHistory(href, pushState);
   routeContextProvider.setValue(makeRouteContext(), {debounce: 'Timeout'});

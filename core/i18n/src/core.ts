@@ -34,6 +34,13 @@ export const l18eContextProvider = contextProvider.bind<L18eContext>('localizati
 export const l18eContextConsumer = contextConsumer.bind<L18eContext>('localization_resource_context');
 
 /**
+ * Promise resolved after LocalizationResource context ready.
+ */
+export const l18eReadyPromise = l18eContextConsumer.untilChange().then(()=>{
+  logger.logMethod('readyPromise');
+});
+
+/**
  * Common useful locales.
  */
 export const commonLocale = {
@@ -95,7 +102,7 @@ l18eContextConsumer.subscribe(
  * Example:
  *
  * ```ts
- * setLocale('fa');
+ * setLocale();
  * ```
  */
 export const setLocale = (locale?: LocaleContext): void => {
@@ -111,7 +118,7 @@ export const setLocale = (locale?: LocaleContext): void => {
 
   logger.logMethodArgs('setLocale', locale);
   if (activeLocaleContext?.code !== locale.code) {
-    localeContextProvider.setValue(locale);
+    localeContextProvider.setValue(locale, {debounce: 'No'});
   }
 };
 
@@ -124,7 +131,7 @@ let _l18eLoaderListener: ListenerSpec | null = null;
  *
  * ```ts
  * setL18eLoader((locale) => {
- *  return import(`/l18r/${locale.code}.js`);
+ *  return import(`/l18e/${locale.code}.js`);
  * })
  * ```
  */
@@ -135,8 +142,8 @@ export const setL18eLoader = (l18eLoader: (locale: LocaleContext) => MaybePromis
     localeContextConsumer.unsubscribe(_l18eLoaderListener);
     logger.accident(
         'setL18eLoader',
-        'l18r_loader_exist',
-        'Multi l18r loader register, the previous one was removed to avoid errors.',
+        'l18e_loader_exist',
+        'Multi l18e loader register, the previous one was removed to avoid errors.',
     );
   }
 
@@ -151,17 +158,19 @@ export const setL18eLoader = (l18eLoader: (locale: LocaleContext) => MaybePromis
       return;
     }
 
-    activeL18eContext = null;
-    l18eContextProvider.expire();
+    if (l18eContextProvider.getValue()) {
+      l18eContextProvider.expire();
+      activeL18eContext = null;
+    }
 
     try {
       const l18e = await l18eLoader(locale);
-      l18eContextProvider.setValue(l18e);
+      l18eContextProvider.setValue(l18e, {debounce: 'No'});
     }
     catch (err) {
       logger.error('l18eLoader', 'loader_function_error', err);
     }
-  });
+  }, {receivePrevious: 'NextCycle'});
 };
 
 /**
@@ -180,12 +189,13 @@ export const setL18eLoader = (l18eLoader: (locale: LocaleContext) => MaybePromis
  * message('hello_world'); // Hello world!
  * ```
  */
-export function message(key: Lowercase<string>): string;
-export function message(key?: null): null;
-export function message(key?: Lowercase<string> | null): string | null {
-  if (key == null) return null;
+export function message(key: string): string;
+export function message(key?: null): undefined;
+export function message(key?: string | null): string | undefined
+export function message(key?: string | null): string | undefined {
+  if (key == null) return;
 
-  key = <Lowercase<string>>key.trim();
+  key = key.trim();
   if (key === '') return '';
 
   if (activeL18eContext == null) return loadingStr;
@@ -205,8 +215,11 @@ export function message(key?: Lowercase<string> | null): string | null {
 /**
  * Format number to active locale string unicode and digital group.
  */
-export const number = (number: number): string => {
+export const number = (number?: number | null, decimal = 2): string => {
+  if (number == null) return loadingStr;
   if (activeNumberFormatter === null) return String(number);
+  decimal = Math.pow(10, decimal);
+  number = Math.round(number * decimal) / decimal;
   return activeNumberFormatter.format(number);
 };
 

@@ -1,4 +1,5 @@
-import {AlwatrDummyElement, css, customElement, html, nothing, property} from '@alwatr/element';
+import {AlwatrBaseElement, css, customElement, html, mapObject, nothing, property} from '@alwatr/element';
+
 import './chat-message.js';
 
 import type {ChatStorage} from '@alwatr/type';
@@ -27,7 +28,7 @@ export function* map<T>(
  * @attr end-side
  */
 @customElement('alwatr-chat-list')
-export class AlwatrChatList extends AlwatrDummyElement {
+export class AlwatrChatList extends AlwatrBaseElement {
   static override styles = css`
     :host {
       display: flex;
@@ -74,7 +75,8 @@ export class AlwatrChatList extends AlwatrDummyElement {
   override render(): unknown {
     this._logger.logMethod('render');
     if (this.storage == null) return nothing;
-    return html`${map(
+    return html`${mapObject(
+        this,
         this.storage.data,
         (message) => html`
         <alwatr-chat-message .message=${message} ?self=${message.from === this.currentUser}></alwatr-chat-message>

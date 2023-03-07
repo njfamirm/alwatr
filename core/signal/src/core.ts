@@ -1,4 +1,5 @@
 import {createLogger, globalAlwatr} from '@alwatr/logger';
+import {requestAnimationFrame} from '@alwatr/util';
 
 import type {
   DispatchOptions,
@@ -62,15 +63,8 @@ export const getSignalObject = <T extends Stringifyable>(id: string): SignalObje
  *
  * Used inside dispatch, Don't use it directly.
  */
-export const _callListeners = <T extends Stringifyable>(signal: SignalObject<T>): void => {
-  logger.logMethodArgs('_callListeners', {signalId: signal.id, signalDetail: signal.detail});
-
-  if (signal.detail === undefined) {
-    logger.accident('_callListeners', 'no_signal_detail', 'signal must have a detail', {
-      signalId: signal.id,
-    });
-    return;
-  }
+export const _callListeners = <T extends Stringifyable>(signal: SignalObject<T>, detail: T): void => {
+  logger.logMethodArgs('_callListeners', {signalId: signal.id, signalDetail: detail});
 
   const removeList: Array<ListenerObject<T>> = [];
 
@@ -78,7 +72,7 @@ export const _callListeners = <T extends Stringifyable>(signal: SignalObject<T>)
     if (listener.disabled) continue;
     if (listener.once) removeList.push(listener);
     try {
-      const ret = listener.callback(signal.detail);
+      const ret = listener.callback(detail);
       if (ret instanceof Promise) {
         ret.catch((err) =>
           logger.error('_callListeners', 'call_listener_failed', err, {
@@ -115,7 +109,7 @@ export const subscribe = <T extends Stringifyable>(
 ): ListenerSpec => {
   options.once ??= false;
   options.disabled ??= false;
-  options.receivePrevious ??= 'AnimationFrame';
+  options.receivePrevious ??= 'NextCycle';
   options.priority ??= false;
 
   logger.logMethodArgs('subscribe', {signalId, options});
@@ -233,16 +227,25 @@ export const dispatch = <T extends Stringifyable>(
 
   if (signal.disabled) return; // signal is disabled.
 
-  // Simple debounce noise filtering
-  if (options.debounce !== 'No' && signal.debounced === true) return; // last dispatch in progress.
-
   if (options.debounce === 'No') {
-    return _callListeners(signal);
+    return _callListeners(signal, detail);
   }
+
+  // else
+  if (options.debounce === 'NextCycle') {
+    setTimeout(_callListeners, 0, signal, detail);
+    return;
+  }
+
+  // else
+  if (signal.debounced === true) {
+    return; // last dispatch in progress.
+  }
+
   // else
   signal.debounced = true;
   const callListeners = (): void => {
-    _callListeners(signal);
+    _callListeners(signal, signal.detail ?? detail);
     signal.debounced = false;
   };
   options.debounce === 'AnimationFrame'
@@ -342,12 +345,12 @@ export const defineCommand = <TArgument extends StringifyableRecord, TReturn ext
   signalId: string,
   signalProvider: ProviderFunction<TArgument & {_callbackSignalId?: string}, TReturn>,
   options: Partial<Pick<ProviderOptions, 'debounce'>> = {},
-): void => {
+): ListenerSpec => {
   options.debounce ??= 'AnimationFrame';
   logger.logMethodArgs('defineCommand', {commandId: signalId, options});
   const requestSignalId = 'request-' + signalId;
   removeAllListeners(requestSignalId);
-  subscribe<TArgument & {_callbackSignalId?: string}>(
+  return subscribe<TArgument & {_callbackSignalId?: string}>(
       requestSignalId,
       async (argumentObject) => {
         clearDetail(requestSignalId); // clean argumentObject from memory
@@ -383,7 +386,7 @@ export const requestContext = <TRequest extends Stringifyable>(
   options: Partial<DispatchOptions> = {},
 ): void => {
   logger.logMethodArgs('requestContext', {contextId, requestParam});
-  return dispatch<TRequest>(contextId, requestParam, options);
+  return dispatch<TRequest>(`request-${contextId}`, requestParam, options);
 };
 
 /**
@@ -433,7 +436,7 @@ export const requestCommandWithResponse = async <
         ...commandArgument,
         _callbackSignalId,
       },
-      {debounce: 'No'},
+      {debounce: 'NextCycle'},
   );
 
   const response = await untilCallback;

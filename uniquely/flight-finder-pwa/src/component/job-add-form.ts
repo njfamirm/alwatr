@@ -1,15 +1,14 @@
-import {AlwatrSmartElement, customElement, css, html} from '@alwatr/element';
+import {customElement, css, html} from '@alwatr/element';
 import {message, localeContextConsumer, number} from '@alwatr/i18n';
 import {eventTrigger} from '@alwatr/signal';
 
+import './ionic-components';
 import {cityList} from '../city-list.js';
 import ionNormalize from '../style/ionic.normalize.js';
 import ionTheming from '../style/ionic.theming.js';
 
 import type {NewJobDetail} from '../type.js';
 import type {InputCustomEvent, SelectCustomEvent} from '@ionic/core';
-
-import './ionic-components';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -18,7 +17,7 @@ declare global {
 }
 
 @customElement('job-add-form')
-export class JobAddForm extends AlwatrSmartElement {
+export class JobAddForm extends SignalMixin(AlwatrBaseElement) {
   static override styles = [
     ionNormalize,
     ionTheming,
@@ -181,10 +180,17 @@ export class JobAddForm extends AlwatrSmartElement {
       event,
     });
 
-    const currentYear = new Date().toLocaleDateString(localeContextConsumer.getValue()?.code, {
+    let currentYear = +new Date().toLocaleDateString(localeContextConsumer.getValue()?.code, {
       numberingSystem: 'latn',
       year: 'numeric',
     });
+
+    const currentMonth = +new Date().toLocaleDateString(localeContextConsumer.getValue()?.code, {
+      numberingSystem: 'latn',
+      month: 'numeric',
+    });
+
+    if (this.__newJob.month as number < currentMonth) currentYear += 1;
 
     JobAddForm.jobAddEventTrigger.dispatch({
       detail: {
