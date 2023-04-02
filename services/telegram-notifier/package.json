@@ -22,8 +22,9 @@
     "s": "yarn start",
     "w": "yarn watch",
     "start": "NODE_OPTIONS=--enable-source-maps run-s clean build serve",
-    "build": "./esbuild.mjs",
+    "build": "yarn build:es --analyze=verbose",
     "build:ts": "tsc --build",
+    "build:es": "esbuild src/index.ts --platform=node --target=node19 --bundle --format=esm --minify --sourcemap --outdir=dist --out-extension:.js=.mjs",
     "clean": "rm -rf dist build .tsbuildinfo",
     "serve": "node --enable-source-maps dist/index.mjs",
     "serve:debug": "node --inspect --enable-source-maps dist/index.mjs",
@@ -33,11 +34,9 @@
     "watch:ts": "yarn build:ts --watch --preserveWatchOutput",
     "watch:es": "yarn build:es --watch"
   },
-  "dependencies": {
-    "telegraf": "^4.12.2"
-  },
   "devDependencies": {
     "@alwatr/logger": "^0.30.0",
+    "@alwatr/telegram": "^0.30.0",
     "@alwatr/nano-server": "^0.30.0",
     "@alwatr/storage-engine": "^0.30.0",
     "@alwatr/type": "^0.30.0",

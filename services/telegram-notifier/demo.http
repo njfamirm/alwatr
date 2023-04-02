@@ -11,5 +11,6 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "message": "salam"
+  "message": "salam",
+  "to": "debug007"
 }
