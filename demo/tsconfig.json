@@ -21,6 +21,7 @@
     {"path": "../core/util"},
     {"path": "../core/fsm"},
     {"path": "../core/context"},
+    {"path": "../ui/ui-kit"},
     {"path": "../ui/icon"},
     {"path": "../core/storage-engine"},
     {"path": "../core/validator"}
