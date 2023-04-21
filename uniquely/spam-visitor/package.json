@@ -46,11 +46,13 @@
     "watch:ts": "yarn build:ts --watch --preserveWatchOutput",
     "watch:es": "yarn build:es --watch"
   },
+  "dependencies": {
+    "puppeteer-core": "^19.10.0"
+  },
   "devDependencies": {
     "@alwatr/logger": "^0.30.0",
     "@alwatr/type": "^0.30.0",
     "@alwatr/util": "^0.30.0",
-    "puppeteer": "^18.0.4",
     "@types/node": "^18.15.11",
     "esbuild": "^0.17.17",
     "nodemon": "^2.0.22",
