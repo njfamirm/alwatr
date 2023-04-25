@@ -1,3 +1,4 @@
+import {contextConsumer} from '@alwatr/context';
 import {html, customElement, nothing} from '@alwatr/element';
 import '@alwatr/font/vazirmatn.css';
 import {AlwatrPwaElement} from '@alwatr/pwa-helper/pwa-element.js';
@@ -8,6 +9,8 @@ import '@alwatr/ui-kit/style/theme/palette-270.css';
 
 import './stuff/app-footer.js';
 import {topAppBarContextProvider} from '../manager/context.js';
+
+import type {ComUser} from '@alwatr/type/customer-order-management.js';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -56,7 +59,7 @@ class AlwatrPwa extends AlwatrPwaElement {
   protected _renderPageOrder(routeContext: RouteContext): unknown {
     import('./page/order.js');
     topAppBarContextProvider.setValue({headlineKey: 'loading'});
-    const orderId = routeContext.sectionList[1] || 'new';
+    const orderId = routeContext.sectionList[1] ?? 'new';
     return html`<alwatr-page-order .orderId=${orderId} unresolved>...</alwatr-page-order>`;
   }
 
@@ -81,7 +84,12 @@ class AlwatrPwa extends AlwatrPwaElement {
 
   protected _checkSignedIn(routeContext: RouteContext): void {
     const route = routeContext.sectionList[0].toString();
-    if (localStorage.getItem('user-token') == null && route !== 'sign-in' && route !== 's' && route !== '') {
+    if (
+      contextConsumer<ComUser>('user_context').getValue() == null &&
+      route !== 'sign-in' &&
+      route !== 's' &&
+      route !== ''
+    ) {
       redirect({sectionList: ['sign-in']});
     }
   }
